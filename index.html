@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sai da Bet — bloqueia bets, conta seus dias limpos</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b1410;color:#eafff3;line-height:1.5}
+.w{max-width:480px;margin:auto;padding:32px 20px}.logo{font-weight:800;font-size:20px;color:#2ee88a}
+h1{font-size:34px;line-height:1.15;margin:28px 0 12px}h1 span{color:#2ee88a}p.l{color:#b5cfc0;font-size:17px}
+.card{background:#122019;border:1px solid #1f3a2c;border-radius:18px;padding:20px;margin:24px 0}
+label{font-size:14px;color:#b5cfc0}input{width:100%;padding:14px;margin:6px 0 14px;border-radius:12px;border:1px solid #2b4a3a;background:#0b1410;color:#fff;font-size:16px}
+button{width:100%;padding:16px;border:0;border-radius:14px;background:#2ee88a;color:#06301a;font-weight:800;font-size:18px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}ul{padding-left:20px;color:#cfe8da}
+.price{font-size:28px;font-weight:800;color:#2ee88a}.ok{display:none;text-align:center}
+.err{display:none;color:#ff8f8f;font-size:14px;margin-top:8px}
+small{color:#7f9a8b;display:block;margin-top:24px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="w">
+<div class="logo">● Sai da Bet</div>
+<h1>Pare de apostar. <span>Comece a contar os dias.</span></h1>
+<p class="l">O app Android que bloqueia sites e apps de aposta, conta seus dias limpos e te dá um botão de emergência pra hora da vontade.</p>
+<div class="card" id="f">
+<form id="form">
+<label>Seu e-mail</label>
+<input type="email" name="email" required placeholder="voce@email.com" autocomplete="email">
+<label>WhatsApp</label>
+<input type="tel" name="whatsapp" required placeholder="(65) 9 9999-9999" autocomplete="tel">
+<button type="submit" id="btn">Entrar na lista</button>
+<p class="err" id="err"></p>
+</form>
+</div>
+<div class="card ok" id="ok">
+<h2>✅ Você está na lista!</h2>
+<p>Vamos te avisar no WhatsApp quando o beta abrir. Primeiro dia limpo começa agora. 💚</p>
+</div>
+<div class="card">
+<ul>
+<li>🚫 Bloqueio de Bet365, Blaze, Tigrinho e +</li>
+<li>📅 Contador de dias limpos e dinheiro economizado</li>
+<li>🆘 Botão de emergência: ligue pro 188 ou chame alguém de confiança</li>
+</ul>
+<p>Lançamento: <span class="price">R$ 14,90/mês</span><br>7 dias grátis. Quem está na lista ganha condição de fundador.</p>
+</div>
+<small>Precisa de ajuda agora? Ligue <b>188</b> (CVV, gratuito, 24h) ou procure o CAPS da sua cidade. O Sai da Bet é uma ferramenta de apoio e não substitui tratamento profissional.</small>
+</div>
+<script>
+const SUPABASE_URL = 'https://jubndqjzpthckxpabtog.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1Ym5kcWp6cHRoY2t4cGFidG9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MjE5ODEsImV4cCI6MjEwNjk5Nzk4MX0.bgV31GymC0op8yyLwWVJhWDL5kCT69pabnGfOlOhMl0';
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn');
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  const data = Object.fromEntries(new FormData(e.target));
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/saidabet_waitlist', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ email: data.email.trim(), whatsapp: data.whatsapp.trim(), source: 'landing' })
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      if (t.includes('duplicate') || res.status === 409) {
+        document.getElementById('f').style.display = 'none';
+        document.getElementById('ok').style.display = 'block';
+        return;
+      }
+      throw new Error(t || ('HTTP ' + res.status));
+    }
+    document.getElementById('f').style.display = 'none';
+    document.getElementById('ok').style.display = 'block';
+  } catch (ex) {
+    err.textContent = 'Não deu pra salvar agora. Tenta de novo em instantes.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Entrar na lista';
+  }
+});
+</script>
+</body>
+</html>
