@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sd_green">#FF2ECC71</color>
+    <color name="sd_bg">#FF0B1F14</color>
+    <color name="sd_surface">#FF132A1C</color>
+    <color name="ic_launcher_background">#0B1F14</color>
+</resources>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sai da Bet — App</title>
+<meta name="description" content="Conte seus dias limpos, veja quanto economizou e tenha um botão de emergência pra hora da vontade.">
+<meta name="theme-color" content="#0B1F14">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sai da Bet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+
+<!-- ONBOARDING -->
+<section id="onboarding" class="screen" hidden>
+  <div class="ob-step" data-step="0">
+    <div class="ob-icon">💚</div>
+    <h1>Bem-vindo ao <span class="g">Sai da Bet</span></h1>
+    <p class="muted">Você não é fraco. As bets são feitas pra viciar. Aqui você conta seus dias limpos, vê o dinheiro que fica no bolso e tem ajuda na hora da vontade.</p>
+    <button class="btn" data-next>Começar</button>
+  </div>
+  <div class="ob-step" data-step="1" hidden>
+    <div class="ob-icon">📅</div>
+    <h1>Desde quando você está sem apostar?</h1>
+    <label>Data da última aposta</label>
+    <input type="date" id="ob-date">
+    <label>Quanto você gastava em bets por dia? (R$)</label>
+    <input type="number" id="ob-spend" inputmode="decimal" min="0" step="1" placeholder="Ex.: 50">
+    <p class="hint">Uma estimativa já basta. Fica salvo só neste aparelho.</p>
+    <button class="btn" data-next>Continuar</button>
+  </div>
+  <div class="ob-step" data-step="2" hidden>
+    <div class="ob-icon">🤝</div>
+    <h1>Alguém de confiança</h1>
+    <p class="muted">Quando bater a vontade, um toque abre o WhatsApp dessa pessoa. Pode pular e preencher depois.</p>
+    <label>Nome</label>
+    <input type="text" id="ob-name" placeholder="Ex.: Mãe, Irmão, Amigo" autocomplete="off">
+    <label>WhatsApp com DDD</label>
+    <input type="tel" id="ob-phone" placeholder="(65) 9 9999-9999" autocomplete="off">
+    <button class="btn" id="ob-finish">Pronto, começar a contar</button>
+  </div>
+  <div class="dots"><i></i><i></i><i></i></div>
+</section>
+
+<!-- HOME -->
+<section id="home" class="screen tab" hidden>
+  <header class="top"><div class="logo">● Sai da Bet</div><button class="icon-btn" data-go="settings" aria-label="Ajustes">⚙️</button></header>
+  <div class="hero card">
+    <p class="muted small">Dias limpos</p>
+    <div class="days" id="days">0</div>
+    <p class="muted" id="since"></p>
+    <div class="clock" id="clock">00h 00m 00s</div>
+  </div>
+  <div class="grid2">
+    <div class="card stat"><p class="muted small">Economizado</p><div class="money" id="saved">R$ 0</div></div>
+    <div class="card stat"><p class="muted small">Próxima meta</p><div class="money" id="goal">1 dia</div><div class="bar"><span id="goalbar"></span></div></div>
+  </div>
+  <div class="card quote" id="quote"></div>
+  <button class="btn danger big" data-go="sos">🆘 Bateu a vontade</button>
+  <button class="btn ghost" id="relapse">Recaí — reiniciar contador</button>
+</section>
+
+<!-- BLOQUEIOS -->
+<section id="block" class="screen tab" hidden>
+  <header class="top"><div class="logo">Bloqueios</div></header>
+  <div class="card warn">
+    <b>⚠️ Na versão web/iPhone o app não consegue bloquear outros apps.</b>
+    <p class="small">A Apple não permite que um site (PWA) bloqueie apps ou sites. O bloqueio automático existe só no <b>app Android</b> (APK). No iPhone, use o bloqueio nativo do próprio iOS — o passo a passo está abaixo.</p>
+  </div>
+  <div class="card">
+    <h3>Bloquear no iPhone (nativo, 2 min)</h3>
+    <ol class="steps">
+      <li>Abra <b>Ajustes › Tempo de Uso</b> e ative.</li>
+      <li>Toque em <b>Conteúdo e Privacidade</b> e ative a chave.</li>
+      <li>Vá em <b>Conteúdo da App Store › Conteúdo Web</b> e escolha <b>Limitar Sites Adultos</b>.</li>
+      <li>Em <b>Nunca Permitir</b>, adicione cada site da lista abaixo (toque em “Copiar sites”).</li>
+      <li>Peça pra alguém de confiança criar o <b>código do Tempo de Uso</b> — assim fica mais difícil desfazer no impulso.</li>
+      <li>Apague os apps de aposta e, em <b>Compras na App Store</b>, bloqueie a instalação de apps.</li>
+    </ol>
+    <button class="btn ghost" id="copy-sites">📋 Copiar sites</button>
+  </div>
+  <div class="card">
+    <h3>Sua lista</h3>
+    <p class="small muted">Marque o que você quer bloquear. No Android, o APK usa essa lista para detectar e fechar o app/site.</p>
+    <ul class="blocklist" id="blocklist"></ul>
+  </div>
+  <a class="btn ghost" href="https://github.com/edujbr/saidabet/releases/tag/v0.1.0-debug" target="_blank" rel="noopener">🤖 Baixar o APK Android (beta)</a>
+</section>
+
+<!-- SOS -->
+<section id="sos" class="screen tab" hidden>
+  <header class="top"><div class="logo">Emergência</div></header>
+  <p class="muted">Bateu a fissura? Respira. A vontade passa — normalmente em poucos minutos. Você não precisa enfrentar isso sozinho.</p>
+  <div class="card breathe">
+    <div class="circle" id="circle"><span id="breathe-txt">Toque pra respirar</span></div>
+    <p class="small muted" id="breathe-timer">90 segundos de respiração guiada</p>
+  </div>
+  <a class="btn danger big" href="tel:188">📞 Ligar 188 — CVV (24h)</a>
+  <p class="small muted center">Centro de Valorização da Vida — ligação gratuita e sigilosa.</p>
+  <a class="btn big" id="wa-btn" href="#" target="_blank" rel="noopener">💬 Chamar no WhatsApp</a>
+  <p class="small muted center" id="wa-hint"></p>
+  <details class="card">
+    <summary>Editar contato de apoio</summary>
+    <label>Nome</label><input type="text" id="sos-name" autocomplete="off">
+    <label>WhatsApp com DDD</label><input type="tel" id="sos-phone" autocomplete="off">
+    <button class="btn ghost" id="sos-save">Salvar contato</button>
+  </details>
+</section>
+
+<!-- PLANO -->
+<section id="plan" class="screen tab" hidden>
+  <header class="top"><div class="logo">Sai da Bet Pro</div></header>
+  <div class="card pro">
+    <span class="badge">Em breve</span>
+    <div class="price">R$ 14,90<small>/mês</small></div>
+    <p class="muted">7 dias grátis no lançamento. Cancele quando quiser.</p>
+    <ul class="checks">
+      <li>Bloqueio automático de apps e sites de aposta (Android)</li>
+      <li>Contador de dias limpos e economia</li>
+      <li>Botão de emergência com 188 e contato de apoio</li>
+      <li>Novos sites adicionados à lista</li>
+    </ul>
+    <button class="btn" disabled>Assinatura ainda não disponível</button>
+    <p class="small muted">Esta é uma prévia. Nenhuma cobrança é feita aqui — o app ainda está em beta e tudo funciona de graça.</p>
+  </div>
+  <div class="card">
+    <h3>⭐ Pré-venda Fundador</h3>
+    <p class="muted">3 meses por <b class="g">R$ 39</b> (normal R$ 44,70) + selo Fundador. Entre na lista de espera pra garantir sua vaga.</p>
+    <a class="btn" href="../">Entrar na lista de espera</a>
+  </div>
+</section>
+
+<!-- AJUSTES -->
+<section id="settings" class="screen" hidden>
+  <header class="top"><button class="icon-btn" data-go="home" aria-label="Voltar">←</button><div class="logo">Ajustes</div><span></span></header>
+  <div class="card">
+    <label>Data da última aposta</label><input type="date" id="set-date">
+    <label>Gasto médio por dia (R$)</label><input type="number" id="set-spend" inputmode="decimal" min="0" step="1">
+    <button class="btn" id="set-save">Salvar</button>
+  </div>
+  <div class="card" id="install-card">
+    <h3>📲 Instalar no iPhone</h3>
+    <ol class="steps"><li>Abra este link no <b>Safari</b>.</li><li>Toque em <b>Compartilhar</b> (quadrado com seta ↑).</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li></ol>
+    <p class="small muted">No Android/Chrome: menu ⋮ › <b>Instalar app</b>.</p>
+  </div>
+  <div class="card">
+    <p class="small muted">🔒 Seus dados (datas, valores e contato) ficam salvos <b>só neste aparelho</b>. Nada é enviado pra servidor.</p>
+    <button class="btn ghost danger-text" id="wipe">Apagar todos os dados</button>
+  </div>
+  <p class="small muted center">Sai da Bet é uma ferramenta de apoio e não substitui tratamento profissional.<br>v0.1.0 (web)</p>
+</section>
+
+<nav id="tabbar" hidden>
+  <button data-go="home"><span>🏠</span>Início</button>
+  <button data-go="block"><span>🚫</span>Bloqueios</button>
+  <button data-go="sos"><span>🆘</span>SOS</button>
+  <button data-go="plan"><span>⭐</span>Plano</button>
+</nav>
+
+<div id="ios-tip" class="ios-tip" hidden>
+  <button class="x" id="ios-tip-x" aria-label="Fechar">×</button>
+  📲 Instale: toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.
+</div>
+<div id="toast" class="toast" hidden></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
